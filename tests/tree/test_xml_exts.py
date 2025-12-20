@@ -11,7 +11,7 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestXMLExts(TreeTestBase):
-    def test_xml_image(self, requests_mock):
+    async def test_xml_image(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -60,7 +60,7 @@ class TestXMLExts(TreeTestBase):
             ).strip(),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
 
         expected_sitemap_tree = IndexWebsiteSitemap(
             url=f"{self.TEST_BASE_URL}/",
@@ -108,7 +108,7 @@ class TestXMLExts(TreeTestBase):
 
 
 class TestXMLHrefLang(TreeTestBase):
-    def test_hreflang(self, requests_mock):
+    async def test_hreflang(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -150,7 +150,7 @@ class TestXMLHrefLang(TreeTestBase):
             ).strip(),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
 
         pages = list(tree.all_pages())
         assert pages[0].alternates == [
@@ -160,7 +160,7 @@ class TestXMLHrefLang(TreeTestBase):
             ("en-GB", f"{self.TEST_BASE_URL}/en/page"),
         ]
 
-    def test_missing_attrs(self, requests_mock):
+    async def test_missing_attrs(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -216,7 +216,7 @@ class TestXMLHrefLang(TreeTestBase):
             ).strip(),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
 
         pages = list(tree.all_pages())
         assert pages[0].alternates is None

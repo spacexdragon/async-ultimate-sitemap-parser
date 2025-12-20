@@ -6,7 +6,7 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeAntiRecursion(TreeTestBase):
-    def test_301_redirect_to_root(self, requests_mock):
+    async def test_301_redirect_to_root(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -48,7 +48,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             status_code=301,
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         sub_sitemaps = list(tree.all_sitemaps())
         assert all(type(x) is not InvalidSitemap for x in sub_sitemaps[:-1])
         assert type(sub_sitemaps[-1]) is InvalidSitemap
@@ -57,7 +57,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             in str(sub_sitemaps[-1])
         )
 
-    def test_cyclic_sitemap(self, requests_mock):
+    async def test_cyclic_sitemap(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -112,7 +112,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             ),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         sub_sitemaps = list(tree.all_sitemaps())
         assert all(type(x) is not InvalidSitemap for x in sub_sitemaps[:-1])
         assert type(sub_sitemaps[-1]) is InvalidSitemap
@@ -120,7 +120,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             sub_sitemaps[-1]
         )
 
-    def test_self_pointing_index(self, requests_mock):
+    async def test_self_pointing_index(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -156,7 +156,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             ),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
 
         sub_sitemaps = list(tree.all_sitemaps())
         assert len(sub_sitemaps) == 3  # robots, sitemap.xml, invalid
@@ -166,7 +166,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             sub_sitemaps[-1]
         )
 
-    def test_known_path_redirects(self, requests_mock):
+    async def test_known_path_redirects(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -208,7 +208,7 @@ class TestTreeAntiRecursion(TreeTestBase):
             status_code=301,
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         # homepage should only have robots child, not sitemap discovered through known URL
         assert len(tree.sub_sitemaps) == 1
         assert type(tree.sub_sitemaps[0]) is IndexRobotsTxtSitemap

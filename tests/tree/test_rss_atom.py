@@ -16,8 +16,8 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeRssAtom(TreeTestBase):
-    def test_sitemap_tree_for_homepage_rss_atom(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with RSS 2.0 / Atom 0.3 / Atom 1.0 feeds."""
+    async def test_sitemap_tree_for_homepage_rss_atom(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with RSS 2.0 / Atom 0.3 / Atom 1.0 feeds."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -234,7 +234,9 @@ class TestTreeRssAtom(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         expected_lines = str(expected_sitemap_tree).split()
         actual_lines = str(actual_sitemap_tree).split()
@@ -246,8 +248,8 @@ class TestTreeRssAtom(TreeTestBase):
         assert len(list(actual_sitemap_tree.all_pages())) == 6
         assert len(list(actual_sitemap_tree.all_sitemaps())) == 4
 
-    def test_sitemap_tree_for_homepage_rss_atom_empty(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with empty RSS 2.0 / Atom 0.3 / Atom 1.0 feeds."""
+    async def test_sitemap_tree_for_homepage_rss_atom_empty(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with empty RSS 2.0 / Atom 0.3 / Atom 1.0 feeds."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -348,7 +350,9 @@ class TestTreeRssAtom(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert expected_sitemap_tree == actual_sitemap_tree
 

@@ -9,8 +9,10 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeRobots(TreeTestBase):
-    def test_sitemap_tree_for_homepage_robots_txt_no_content_type(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with no Content-Type in robots.txt."""
+    async def test_sitemap_tree_for_homepage_robots_txt_no_content_type(
+        self, requests_mock
+    ):
+        """Test await sitemap_tree_for_homepage() with no Content-Type in robots.txt."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -40,12 +42,14 @@ class TestTreeRobots(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert expected_sitemap_tree == actual_sitemap_tree
 
-    def test_sitemap_tree_for_homepage_no_robots_txt(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with no robots.txt."""
+    async def test_sitemap_tree_for_homepage_no_robots_txt(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with no robots.txt."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -68,12 +72,16 @@ class TestTreeRobots(TreeTestBase):
             sub_sitemaps=[],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert expected_sitemap_tree == actual_sitemap_tree
 
-    def test_sitemap_tree_for_homepage_robots_txt_weird_spacing(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with weird (but valid) spacing."""
+    async def test_sitemap_tree_for_homepage_robots_txt_weird_spacing(
+        self, requests_mock
+    ):
+        """Test await sitemap_tree_for_homepage() with weird (but valid) spacing."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -116,6 +124,8 @@ class TestTreeRobots(TreeTestBase):
             ).strip(),
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
         assert len(list(actual_sitemap_tree.all_pages())) == 1
         assert len(list(actual_sitemap_tree.all_sitemaps())) == 2

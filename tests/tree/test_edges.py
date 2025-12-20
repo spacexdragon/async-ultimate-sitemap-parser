@@ -14,8 +14,8 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeEdgeCases(TreeTestBase):
-    def test_sitemap_tree_for_homepage_utf8_bom(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with UTF-8 BOM in both robots.txt and sitemap."""
+    async def test_sitemap_tree_for_homepage_utf8_bom(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with UTF-8 BOM in both robots.txt and sitemap."""
 
         robots_txt_body = textwrap.dedent(
             f"""
@@ -67,11 +67,13 @@ class TestTreeEdgeCases(TreeTestBase):
             content=sitemap_xml_body_encoded,
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
         assert len(list(actual_sitemap_tree.all_pages())) == 1
         assert len(list(actual_sitemap_tree.all_sitemaps())) == 2
 
-    def test_max_recursion_level_xml(self, requests_mock):
+    async def test_max_recursion_level_xml(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
         requests_mock.get(
             self.TEST_BASE_URL + "/robots.txt",
@@ -105,12 +107,12 @@ class TestTreeEdgeCases(TreeTestBase):
             ),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         sitemaps = list(tree.all_sitemaps())
 
         assert type(sitemaps[-1]) is InvalidSitemap
 
-    def test_max_recursion_level_sitemap_with_robots(self, requests_mock):
+    async def test_max_recursion_level_sitemap_with_robots(self, requests_mock):
         # GH#29
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
@@ -146,11 +148,11 @@ class TestTreeEdgeCases(TreeTestBase):
             ),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         sitemaps = list(tree.all_sitemaps())
         assert type(sitemaps[-1]) is InvalidSitemap
 
-    def test_truncated_sitemap_missing_close_urlset(self, requests_mock):
+    async def test_truncated_sitemap_missing_close_urlset(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -186,10 +188,10 @@ class TestTreeEdgeCases(TreeTestBase):
             text=(textwrap.dedent(sitemap_xml).strip()),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         assert len(list(tree.all_pages())) == 50
 
-    def test_truncated_sitemap_mid_url(self, requests_mock):
+    async def test_truncated_sitemap_mid_url(self, requests_mock):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -229,12 +231,12 @@ class TestTreeEdgeCases(TreeTestBase):
             text=(textwrap.dedent(sitemap_xml).strip()),
         )
 
-        tree = sitemap_tree_for_homepage(self.TEST_BASE_URL)
+        tree = await sitemap_tree_for_homepage(self.TEST_BASE_URL)
         all_pages = list(tree.all_pages())
         assert len(all_pages) == 49
         assert all_pages[-1].url.endswith("page_48.html")
 
-    def test_sitemap_no_ns(self, requests_mock, caplog):
+    async def test_sitemap_no_ns(self, requests_mock, caplog):
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
         requests_mock.get(
@@ -313,7 +315,9 @@ class TestTreeEdgeCases(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert expected_sitemap_tree == actual_sitemap_tree
         assert (

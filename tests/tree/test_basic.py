@@ -20,8 +20,8 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeBasic(TreeTestBase):
-    def test_sitemap_tree_for_homepage(self, requests_mock):
-        """Test sitemap_tree_for_homepage()."""
+    async def test_sitemap_tree_for_homepage(self, requests_mock):
+        """Test await sitemap_tree_for_homepage()."""
         self.init_basic_sitemap(requests_mock)
 
         expected_sitemap_tree = IndexWebsiteSitemap(
@@ -119,7 +119,9 @@ class TestTreeBasic(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         expected_lines = str(expected_sitemap_tree).split()
         actual_lines = str(actual_sitemap_tree).split()
@@ -132,8 +134,8 @@ class TestTreeBasic(TreeTestBase):
         assert len(list(actual_sitemap_tree.all_pages())) == 6
         assert len(list(actual_sitemap_tree.all_sitemaps())) == 7
 
-    def test_sitemap_tree_for_homepage_gzip(self, requests_mock, caplog):
-        """Test sitemap_tree_for_homepage() with gzipped sitemaps."""
+    async def test_sitemap_tree_for_homepage_gzip(self, requests_mock, caplog):
+        """Test await sitemap_tree_for_homepage() with gzipped sitemaps."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -263,7 +265,9 @@ class TestTreeBasic(TreeTestBase):
             ),
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         # Don't do an in-depth check, we just need to make sure that gunzip works
         assert isinstance(actual_sitemap_tree, IndexWebsiteSitemap)
@@ -308,8 +312,8 @@ class TestTreeBasic(TreeTestBase):
             in caplog.text
         )
 
-    def test_sitemap_tree_for_homepage_huge_sitemap(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with a huge sitemap (mostly for profiling)."""
+    async def test_sitemap_tree_for_homepage_huge_sitemap(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with a huge sitemap (mostly for profiling)."""
 
         page_count = 1000
 
@@ -370,7 +374,9 @@ class TestTreeBasic(TreeTestBase):
             content=gzip(sitemap_xml),
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert len(list(actual_sitemap_tree.all_pages())) == page_count
         assert len(list(actual_sitemap_tree.all_sitemaps())) == 2

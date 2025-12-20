@@ -1,5 +1,6 @@
 """Implementation of :mod:`usp.web_client.abstract_client` with Requests."""
 
+import asyncio
 import logging
 from http import HTTPStatus
 
@@ -137,40 +138,44 @@ class RequestsWebClient(AbstractWebClient):
     def set_max_response_data_length(self, max_response_data_length: int) -> None:
         self.__max_response_data_length = max_response_data_length
 
-    def get(self, url: str) -> AbstractWebClientResponse:
-        self.__waiter.wait()
-        try:
-            response = self.__session.get(
-                url,
-                timeout=self.__timeout,
-                stream=True,
-                headers={"User-Agent": self.__USER_AGENT},
-                proxies=self.__proxies,
-                verify=self.__verify,
-            )
-        except requests.exceptions.Timeout as ex:
-            # Retryable timeouts
-            return RequestsWebClientErrorResponse(message=str(ex), retryable=True)
+    async def get(self, url: str) -> AbstractWebClientResponse:
+        await asyncio.to_thread(self.__waiter.wait)
 
-        except requests.exceptions.RequestException as ex:
-            # Other errors, e.g. redirect loops
-            return RequestsWebClientErrorResponse(message=str(ex), retryable=False)
-
-        else:
-            if 200 <= response.status_code < 300:
-                return RequestsWebClientSuccessResponse(
-                    requests_response=response,
-                    max_response_data_length=self.__max_response_data_length,
+        def _sync_get():
+            try:
+                response = self.__session.get(
+                    url,
+                    timeout=self.__timeout,
+                    stream=True,
+                    headers={"User-Agent": self.__USER_AGENT},
+                    proxies=self.__proxies,
+                    verify=self.__verify,
                 )
-            else:
-                message = f"{response.status_code} {response.reason}"
-                log.debug(f"Response content: {response.text}")
+            except requests.exceptions.Timeout as ex:
+                # Retryable timeouts
+                return RequestsWebClientErrorResponse(message=str(ex), retryable=True)
 
-                if response.status_code in RETRYABLE_HTTP_STATUS_CODES:
-                    return RequestsWebClientErrorResponse(
-                        message=message, retryable=True
+            except requests.exceptions.RequestException as ex:
+                # Other errors, e.g. redirect loops
+                return RequestsWebClientErrorResponse(message=str(ex), retryable=False)
+
+            else:
+                if 200 <= response.status_code < 300:
+                    return RequestsWebClientSuccessResponse(
+                        requests_response=response,
+                        max_response_data_length=self.__max_response_data_length,
                     )
                 else:
-                    return RequestsWebClientErrorResponse(
-                        message=message, retryable=False
-                    )
+                    message = f"{response.status_code} {response.reason}"
+                    log.debug(f"Response content: {response.text}")
+
+                    if response.status_code in RETRYABLE_HTTP_STATUS_CODES:
+                        return RequestsWebClientErrorResponse(
+                            message=message, retryable=True
+                        )
+                    else:
+                        return RequestsWebClientErrorResponse(
+                            message=message, retryable=False
+                        )
+
+        return await asyncio.to_thread(_sync_get)

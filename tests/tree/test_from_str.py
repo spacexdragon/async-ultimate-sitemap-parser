@@ -7,8 +7,8 @@ from usp.tree import sitemap_from_str
 
 
 class TestSitemapFromStr(TreeTestBase):
-    def test_xml_pages(self):
-        parsed = sitemap_from_str(
+    async def test_xml_pages(self):
+        parsed = await sitemap_from_str(
             content=textwrap.dedent(
                 f"""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -39,8 +39,8 @@ class TestSitemapFromStr(TreeTestBase):
         assert len(list(parsed.all_pages())) == 2
         assert all([isinstance(page, SitemapPage) for page in parsed.all_pages()])
 
-    def test_xml_index(self):
-        parsed = sitemap_from_str(
+    async def test_xml_index(self):
+        parsed = await sitemap_from_str(
             content=textwrap.dedent(
                 f"""
                 <?xml version="1.0" encoding="UTF-8"?>

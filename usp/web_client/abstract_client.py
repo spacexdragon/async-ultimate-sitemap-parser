@@ -165,7 +165,7 @@ class AbstractWebClient(metaclass=abc.ABCMeta):
         raise NotImplementedError("Abstract method.")
 
     @abc.abstractmethod
-    def get(self, url: str) -> AbstractWebClientResponse:
+    async def get(self, url: str) -> AbstractWebClientResponse:
         """
         Fetch a URL and return a response.
 
@@ -195,7 +195,7 @@ class LocalWebClient(AbstractWebClient):
     ) -> None:
         pass
 
-    def get(self, url: str) -> AbstractWebClientResponse:
+    async def get(self, url: str) -> AbstractWebClientResponse:
         raise NoWebClientException
 
 

@@ -1,19 +1,26 @@
 import re
 from unittest import mock
+from unittest.mock import AsyncMock
 
 import pytest
 
 from tests.tree.base import TreeTestBase
+from usp.objects.sitemap import InvalidSitemap
 from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeOpts(TreeTestBase):
     @pytest.fixture
     def mock_fetcher(self, mocker):
-        return mocker.patch("usp.tree.SitemapFetcher")
+        mock_fetcher_instance = mocker.patch("usp.tree.SitemapFetcher")
+        # Make the sitemap() method async
+        mock_fetcher_instance.return_value.sitemap = AsyncMock(
+            return_value=InvalidSitemap(url="test", reason="test")
+        )
+        return mock_fetcher_instance
 
-    def test_extra_known_paths(self, mock_fetcher):
-        sitemap_tree_for_homepage(
+    async def test_extra_known_paths(self, mock_fetcher):
+        await sitemap_tree_for_homepage(
             "https://example.org", extra_known_paths={"custom_sitemap.xml"}
         )
         mock_fetcher.assert_any_call(
@@ -26,7 +33,7 @@ class TestTreeOpts(TreeTestBase):
             recurse_list_callback=None,
         )
 
-    def test_filter_callback(self, requests_mock):
+    async def test_filter_callback(self, requests_mock):
         self.init_basic_sitemap(requests_mock)
 
         def recurse_callback(
@@ -34,7 +41,7 @@ class TestTreeOpts(TreeTestBase):
         ) -> bool:
             return re.search(r"news_\d", url) is None
 
-        tree = sitemap_tree_for_homepage(
+        tree = await sitemap_tree_for_homepage(
             self.TEST_BASE_URL, recurse_callback=recurse_callback
         )
 
@@ -42,7 +49,7 @@ class TestTreeOpts(TreeTestBase):
         assert len(list(tree.all_sitemaps())) == 5
         assert all("/news/" not in page.url for page in tree.all_pages())
 
-    def test_filter_list_callback(self, requests_mock):
+    async def test_filter_list_callback(self, requests_mock):
         self.init_basic_sitemap(requests_mock)
 
         def recurse_list_callback(
@@ -50,7 +57,7 @@ class TestTreeOpts(TreeTestBase):
         ) -> list[str]:
             return [url for url in urls if re.search(r"news_\d", url) is None]
 
-        tree = sitemap_tree_for_homepage(
+        tree = await sitemap_tree_for_homepage(
             self.TEST_BASE_URL, recurse_list_callback=recurse_list_callback
         )
 

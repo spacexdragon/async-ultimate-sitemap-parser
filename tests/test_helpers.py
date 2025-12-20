@@ -225,7 +225,7 @@ class MockWebClientErrorResponse(WebClientErrorResponse):
     ("quiet_404_value", "expected_log_level"),
     [(True, logging.INFO), (False, logging.WARNING)],
 )
-def test_url_retry_on_client_errors_quiet_404(
+async def test_url_retry_on_client_errors_quiet_404(
     caplog, quiet_404_value, expected_log_level
 ):
     class MockWebClient404s(AbstractWebClient):
@@ -234,11 +234,11 @@ def test_url_retry_on_client_errors_quiet_404(
         ) -> None:
             pass
 
-        def get(self, url: str) -> AbstractWebClientResponse:
+        async def get(self, url: str) -> AbstractWebClientResponse:
             return MockWebClientErrorResponse("404 Not Found", False)
 
     caplog.set_level(expected_log_level)
-    get_url_retry_on_client_errors(
+    await get_url_retry_on_client_errors(
         url="http://example.com",
         web_client=MockWebClient404s(),
         quiet_404=quiet_404_value,

@@ -39,7 +39,7 @@ _UNPUBLISHED_SITEMAP_PATHS = {
 """Paths which are not exposed in robots.txt but might still contain a sitemap."""
 
 
-def sitemap_tree_for_homepage(
+async def sitemap_tree_for_homepage(
     homepage_url: str,
     web_client: AbstractWebClient | None = None,
     use_robots: bool = True,
@@ -90,7 +90,7 @@ def sitemap_tree_for_homepage(
             recurse_callback=recurse_callback,
             recurse_list_callback=recurse_list_callback,
         )
-        robots_txt_sitemap = robots_txt_fetcher.sitemap()
+        robots_txt_sitemap = await robots_txt_fetcher.sitemap()
         if not isinstance(robots_txt_sitemap, InvalidSitemap):
             sitemaps.append(robots_txt_sitemap)
 
@@ -113,7 +113,7 @@ def sitemap_tree_for_homepage(
                     recurse_callback=recurse_callback,
                     recurse_list_callback=recurse_list_callback,
                 )
-                unpublished_sitemap = unpublished_sitemap_fetcher.sitemap()
+                unpublished_sitemap = await unpublished_sitemap_fetcher.sitemap()
 
                 # Skip the ones that weren't found
                 if not isinstance(unpublished_sitemap, InvalidSitemap):
@@ -124,7 +124,7 @@ def sitemap_tree_for_homepage(
     return index_sitemap
 
 
-def sitemap_from_str(content: str) -> AbstractSitemap:
+async def sitemap_from_str(content: str) -> AbstractSitemap:
     """Parse sitemap from a string.
 
     Will return the parsed sitemaps, and any sub-sitemaps will be returned as :class:`~.InvalidSitemap`.
@@ -133,4 +133,4 @@ def sitemap_from_str(content: str) -> AbstractSitemap:
     :return: Parsed sitemap
     """
     fetcher = SitemapStrParser(static_content=content)
-    return fetcher.sitemap()
+    return await fetcher.sitemap()

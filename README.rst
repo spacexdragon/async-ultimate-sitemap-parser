@@ -1,6 +1,11 @@
 Ultimate Sitemap Parser
 -----------------------
 
+.. note::
+
+   This is a fork of the `original ultimate-sitemap-parser <https://github.com/mediacloud/ultimate-sitemap-parser>`_
+   by Media Cloud, rewritten to use ``asyncio`` and ``httpx`` with HTTP/2 support.
+
 .. image:: https://img.shields.io/pypi/pyversions/ultimate-sitemap-parser
    :alt: PyPI - Python Version
    :target: https://github.com/GateNLP/ultimate-sitemap-parser
@@ -62,9 +67,12 @@ Usage
 
 .. code:: python
 
-    from usp.tree import sitemap_tree_for_homepage
+    from usp.tree import sitemap_tree_for_homepage,
+    from usp.web_client.httpx_client import HttpxWebClient
 
-    tree = sitemap_tree_for_homepage('https://www.example.org/')
+    ...
+
+    tree = await sitemap_tree_for_homepage('https://www.example.org/', web_client=HttpxWebClient())
 
     for page in tree.all_pages():
         print(page.url)

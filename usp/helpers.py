@@ -1,12 +1,12 @@
 """Helper utilities."""
 
+import asyncio
 import datetime
 import gzip as gzip_lib
 import html
 import logging
 import re
 import sys
-import time
 from collections.abc import Callable
 from http import HTTPStatus
 from typing import TypeAlias
@@ -147,7 +147,7 @@ def parse_rfc2822_date(date_string: str) -> datetime.datetime | None:
 _404_log_message = f"{HTTPStatus.NOT_FOUND} {HTTPStatus.NOT_FOUND.phrase}"
 
 
-def get_url_retry_on_client_errors(
+async def get_url_retry_on_client_errors(
     url: str,
     web_client: AbstractWebClient,
     retry_count: int = 5,
@@ -170,7 +170,7 @@ def get_url_retry_on_client_errors(
     response = None
     for retry in range(0, retry_count):
         log.info(f"Fetching URL {url}...")
-        response = web_client.get(url)
+        response = await web_client.get(url)
 
         if isinstance(response, WebClientErrorResponse):
             if quiet_404 and response.message() == _404_log_message:
@@ -181,7 +181,7 @@ def get_url_retry_on_client_errors(
 
             if response.retryable():
                 log.info(f"Retrying URL {url} in {sleep_between_retries} seconds...")
-                time.sleep(sleep_between_retries)
+                await asyncio.sleep(sleep_between_retries)
 
             else:
                 log.info(f"Not retrying for URL {url}")

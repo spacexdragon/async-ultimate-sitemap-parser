@@ -14,8 +14,8 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreePlainText(TreeTestBase):
-    def test_sitemap_tree_for_homepage_plain_text(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with plain text sitemaps."""
+    async def test_sitemap_tree_for_homepage_plain_text(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with plain text sitemaps."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -68,7 +68,9 @@ class TestTreePlainText(TreeTestBase):
             ),
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert isinstance(actual_sitemap_tree, IndexWebsiteSitemap)
         assert len(actual_sitemap_tree.sub_sitemaps) == 1

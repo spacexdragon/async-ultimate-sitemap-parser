@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import sys
 from collections.abc import Iterator
 
@@ -99,10 +100,10 @@ def _output_pages(sitemap: AbstractSitemap, strip_prefix: str = ""):
         sys.stdout.write(_strip_url(page.url, strip_prefix) + "\n")
 
 
-def ls(args):
+async def ls_async(args):
     setup_logging(args.verbosity, args.log_file)
 
-    tree = sitemap_tree_for_homepage(
+    tree = await sitemap_tree_for_homepage(
         args.url,
         use_robots=not args.no_robots,
         use_known_paths=not args.no_known,
@@ -120,3 +121,8 @@ def ls(args):
         raise NotImplementedError(f"Format '{args.format}' not implemented")
 
     exit(0)
+
+
+def ls(args):
+    """Synchronous wrapper for ls_async."""
+    asyncio.run(ls_async(args))

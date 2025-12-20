@@ -13,8 +13,10 @@ from usp.tree import sitemap_tree_for_homepage
 
 
 class TestTreeXML(TreeTestBase):
-    def test_sitemap_tree_for_homepage_prematurely_ending_xml(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with clipped XML.
+    async def test_sitemap_tree_for_homepage_prematurely_ending_xml(
+        self, requests_mock
+    ):
+        """Test await sitemap_tree_for_homepage() with clipped XML.
 
         Some webservers are misconfigured to limit the request length to a certain number of seconds, in which time the
         server is unable to generate and compress a 50 MB sitemap XML. Google News doesn't seem to have a problem with
@@ -84,7 +86,9 @@ class TestTreeXML(TreeTestBase):
             ).strip(),
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert isinstance(actual_sitemap_tree, IndexWebsiteSitemap)
         assert len(actual_sitemap_tree.sub_sitemaps) == 1
@@ -98,8 +102,8 @@ class TestTreeXML(TreeTestBase):
         assert isinstance(sitemap, PagesXMLSitemap)
         assert len(sitemap.pages) == 2
 
-    def test_sitemap_tree_for_homepage_no_sitemap(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with no sitemaps listed in robots.txt."""
+    async def test_sitemap_tree_for_homepage_no_sitemap(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with no sitemaps listed in robots.txt."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -129,12 +133,14 @@ class TestTreeXML(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert expected_sitemap_tree == actual_sitemap_tree
 
-    def test_sitemap_tree_for_homepage_unpublished_sitemap(self, requests_mock):
-        """Test sitemap_tree_for_homepage() with some sitemaps not published in robots.txt."""
+    async def test_sitemap_tree_for_homepage_unpublished_sitemap(self, requests_mock):
+        """Test await sitemap_tree_for_homepage() with some sitemaps not published in robots.txt."""
 
         requests_mock.add_matcher(TreeTestBase.fallback_to_404_not_found_matcher)
 
@@ -213,6 +219,8 @@ class TestTreeXML(TreeTestBase):
             ],
         )
 
-        actual_sitemap_tree = sitemap_tree_for_homepage(homepage_url=self.TEST_BASE_URL)
+        actual_sitemap_tree = await sitemap_tree_for_homepage(
+            homepage_url=self.TEST_BASE_URL
+        )
 
         assert expected_sitemap_tree == actual_sitemap_tree

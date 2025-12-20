@@ -138,21 +138,21 @@ class SitemapFetcher:
         self._recurse_callback = recurse_callback
         self._recurse_list_callback = recurse_list_callback
 
-    def _fetch(self) -> AbstractWebClientResponse:
+    async def _fetch(self) -> AbstractWebClientResponse:
         log.info(f"Fetching level {self._recursion_level} sitemap from {self._url}...")
-        response = get_url_retry_on_client_errors(
+        response = await get_url_retry_on_client_errors(
             url=self._url, web_client=self._web_client, quiet_404=self._quiet_404
         )
         return response
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         """
         Fetch and parse the sitemap.
 
         :return: the parsed sitemap. Will be a child of :class:`~.AbstractSitemap`.
             If an HTTP error is encountered, or the sitemap cannot be parsed, will be :class:`~.InvalidSitemap`.
         """
-        response = self._fetch()
+        response = await self._fetch()
 
         if isinstance(response, WebClientErrorResponse):
             return InvalidSitemap(
@@ -209,7 +209,7 @@ class SitemapFetcher:
                 )
 
         log.info(f"Parsing sitemap from URL {self._url}...")
-        sitemap = parser.sitemap()
+        sitemap = await parser.sitemap()
 
         return sitemap
 
@@ -235,7 +235,7 @@ class SitemapStrParser(SitemapFetcher):
         )
         self._static_content = static_content
 
-    def _fetch(self) -> AbstractWebClientResponse:
+    async def _fetch(self) -> AbstractWebClientResponse:
         return LocalWebClientSuccessResponse(url=self._url, data=self._static_content)
 
 
@@ -279,7 +279,7 @@ class AbstractSitemapParser(metaclass=abc.ABCMeta):
             self._recurse_list_callback = recurse_list_callback
 
     @abc.abstractmethod
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         """
         Create the parsed sitemap instance and perform any sub-parsing needed.
 
@@ -316,7 +316,7 @@ class IndexRobotsTxtSitemapParser(AbstractSitemapParser):
                 f"URL does not look like robots.txt URL: {self._url}"
             )
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         # Serves as an ordered set because we want to deduplicate URLs but also retain the order
         sitemap_urls = OrderedDict()
 
@@ -354,7 +354,7 @@ class IndexRobotsTxtSitemapParser(AbstractSitemapParser):
                         recurse_callback=self._recurse_callback,
                         recurse_list_callback=self._recurse_list_callback,
                     )
-                    fetched_sitemap = fetcher.sitemap()
+                    fetched_sitemap = await fetcher.sitemap()
                 else:
                     continue
             except NoWebClientException:
@@ -376,7 +376,7 @@ class IndexRobotsTxtSitemapParser(AbstractSitemapParser):
 class PlainTextSitemapParser(AbstractSitemapParser):
     """Plain text sitemap parser."""
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         story_urls = OrderedDict()
 
         for story_url in self._content.splitlines():
@@ -437,7 +437,7 @@ class XMLSitemapParser(AbstractSitemapParser):
         # Whether this is a malformed sitemap with no namespace
         self._is_non_ns_sitemap = False
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         parser = xml.parsers.expat.ParserCreate(
             namespace_separator=self.__XML_NAMESPACE_SEPARATOR
         )
@@ -459,7 +459,7 @@ class XMLSitemapParser(AbstractSitemapParser):
                 reason=f"No parsers support sitemap from {self._url}",
             )
 
-        return self._concrete_parser.sitemap()
+        return await self._concrete_parser.sitemap()
 
     def __normalize_xml_element_name(self, name: str):
         """
@@ -651,7 +651,7 @@ class AbstractXMLSitemapParser(metaclass=abc.ABCMeta):
         self._last_handler_call_was_xml_char_data = True
 
     @abc.abstractmethod
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         """
         Create the parsed sitemap instance and perform any sub-parsing needed.
 
@@ -707,7 +707,7 @@ class IndexXMLSitemapParser(AbstractXMLSitemapParser):
 
         super().xml_element_end(name=name)
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         sub_sitemaps = []
 
         parent_urls = self._parent_urls | {self._url}
@@ -728,7 +728,7 @@ class IndexXMLSitemapParser(AbstractXMLSitemapParser):
                         recurse_callback=self._recurse_callback,
                         recurse_list_callback=self._recurse_list_callback,
                     )
-                    fetched_sitemap = fetcher.sitemap()
+                    fetched_sitemap = await fetcher.sitemap()
                 else:
                     continue
             except NoWebClientException:
@@ -1059,7 +1059,7 @@ class PagesXMLSitemapParser(AbstractXMLSitemapParser):
 
         super().xml_element_end(name=name)
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         pages = []
 
         for page_row in self._pages:
@@ -1188,7 +1188,7 @@ class PagesRSSSitemapParser(AbstractXMLSitemapParser):
 
         super().xml_element_end(name=name)
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         pages = []
 
         for page_row in self._pages:
@@ -1340,7 +1340,7 @@ class PagesAtomSitemapParser(AbstractXMLSitemapParser):
 
         super().xml_element_end(name=name)
 
-    def sitemap(self) -> AbstractSitemap:
+    async def sitemap(self) -> AbstractSitemap:
         pages = []
 
         for page_row in self._pages:
