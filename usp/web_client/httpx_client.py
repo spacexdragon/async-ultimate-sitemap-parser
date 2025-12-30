@@ -128,6 +128,7 @@ class HttpxWebClient(AbstractWebClient):
                 timeout=self.__timeout,
                 proxy=self.__proxy,
                 headers={"User-Agent": self.__USER_AGENT},
+                follow_redirects=True,
             )
         return self.__client
 

@@ -150,6 +150,7 @@ class RequestsWebClient(AbstractWebClient):
                     headers={"User-Agent": self.__USER_AGENT},
                     proxies=self.__proxies,
                     verify=self.__verify,
+                    allow_redirects=True,
                 )
             except requests.exceptions.Timeout as ex:
                 # Retryable timeouts
