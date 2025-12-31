@@ -39,6 +39,11 @@ class TestTreeBasic(TreeTestBase):
                                     news_story=None,
                                     change_frequency=SitemapPageChangeFrequency.MONTHLY,
                                     priority=Decimal("0.8"),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_pages.xml",
+                                    ],
                                 ),
                                 SitemapPage(
                                     url=f"{self.TEST_BASE_URL}/contact.html",
@@ -48,6 +53,11 @@ class TestTreeBasic(TreeTestBase):
                                     change_frequency=SitemapPageChangeFrequency.ALWAYS,
                                     # Invalid input -- should be reset to 0.5 (the default as per the spec)
                                     priority=Decimal("0.5"),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_pages.xml",
+                                    ],
                                 ),
                             ],
                         ),
@@ -65,6 +75,12 @@ class TestTreeBasic(TreeTestBase):
                                                 publication_name=self.TEST_PUBLICATION_NAME,
                                                 publication_language=self.TEST_PUBLICATION_LANGUAGE,
                                             ),
+                                            alternates=None,
+                                            sitemap_chain=[
+                                                f"{self.TEST_BASE_URL}/robots.txt",
+                                                f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                                                f"{self.TEST_BASE_URL}/sitemap_news_1.xml",
+                                            ],
                                         ),
                                         SitemapPage(
                                             url=f"{self.TEST_BASE_URL}/news/bar.html",
@@ -74,6 +90,12 @@ class TestTreeBasic(TreeTestBase):
                                                 publication_name=self.TEST_PUBLICATION_NAME,
                                                 publication_language=self.TEST_PUBLICATION_LANGUAGE,
                                             ),
+                                            alternates=None,
+                                            sitemap_chain=[
+                                                f"{self.TEST_BASE_URL}/robots.txt",
+                                                f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                                                f"{self.TEST_BASE_URL}/sitemap_news_1.xml",
+                                            ],
                                         ),
                                     ],
                                 ),
@@ -91,6 +113,13 @@ class TestTreeBasic(TreeTestBase):
                                                         publication_name=self.TEST_PUBLICATION_NAME,
                                                         publication_language=self.TEST_PUBLICATION_LANGUAGE,
                                                     ),
+                                                    alternates=None,
+                                                    sitemap_chain=[
+                                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                                        f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                                                        f"{self.TEST_BASE_URL}/sitemap_news_index_2.xml",
+                                                        f"{self.TEST_BASE_URL}/sitemap_news_2.xml",
+                                                    ],
                                                 ),
                                                 SitemapPage(
                                                     url=f"{self.TEST_BASE_URL}/news/baz.html",
@@ -100,6 +129,13 @@ class TestTreeBasic(TreeTestBase):
                                                         publication_name=self.TEST_PUBLICATION_NAME,
                                                         publication_language=self.TEST_PUBLICATION_LANGUAGE,
                                                     ),
+                                                    alternates=None,
+                                                    sitemap_chain=[
+                                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                                        f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                                                        f"{self.TEST_BASE_URL}/sitemap_news_index_2.xml",
+                                                        f"{self.TEST_BASE_URL}/sitemap_news_2.xml",
+                                                    ],
                                                 ),
                                             ],
                                         ),

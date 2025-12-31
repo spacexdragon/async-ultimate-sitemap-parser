@@ -91,8 +91,9 @@ class TestTreePlainText(TreeTestBase):
 
         pages = list(actual_sitemap_tree.all_pages())
         assert len(pages) == 4
-        assert SitemapPage(url=f"{self.TEST_BASE_URL}/news/foo.html") in pages
-        assert SitemapPage(url=f"{self.TEST_BASE_URL}/news/bar.html") in pages
-        assert SitemapPage(url=f"{self.TEST_BASE_URL}/news/baz.html") in pages
+        page_urls = [page.url for page in pages]
+        assert f"{self.TEST_BASE_URL}/news/foo.html" in page_urls
+        assert f"{self.TEST_BASE_URL}/news/bar.html" in page_urls
+        assert f"{self.TEST_BASE_URL}/news/baz.html" in page_urls
 
         assert len(list(actual_sitemap_tree.all_sitemaps())) == 3

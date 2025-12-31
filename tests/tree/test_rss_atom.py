@@ -181,6 +181,11 @@ class TestTreeRssAtom(TreeTestBase):
                                         title="Test RSS 2.0 story #1",
                                         publish_date=self.TEST_DATE_DATETIME,
                                     ),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_rss.xml",
+                                    ],
                                 ),
                                 SitemapPage(
                                     url=f"{self.TEST_BASE_URL}/rss_story_2.html",
@@ -188,6 +193,11 @@ class TestTreeRssAtom(TreeTestBase):
                                         title="Test RSS 2.0 story #2",
                                         publish_date=self.TEST_DATE_DATETIME,
                                     ),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_rss.xml",
+                                    ],
                                 ),
                             ],
                         ),
@@ -200,6 +210,11 @@ class TestTreeRssAtom(TreeTestBase):
                                         title="Test Atom 0.3 story #1",
                                         publish_date=self.TEST_DATE_DATETIME,
                                     ),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_atom_0_3.xml",
+                                    ],
                                 ),
                                 SitemapPage(
                                     url=f"{self.TEST_BASE_URL}/atom_0_3_story_2.html",
@@ -207,6 +222,11 @@ class TestTreeRssAtom(TreeTestBase):
                                         title="Test Atom 0.3 story #2",
                                         publish_date=self.TEST_DATE_DATETIME,
                                     ),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_atom_0_3.xml",
+                                    ],
                                 ),
                             ],
                         ),
@@ -219,6 +239,11 @@ class TestTreeRssAtom(TreeTestBase):
                                         title="Test Atom 1.0 story #1",
                                         publish_date=self.TEST_DATE_DATETIME,
                                     ),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_atom_1_0.xml",
+                                    ],
                                 ),
                                 SitemapPage(
                                     url=f"{self.TEST_BASE_URL}/atom_1_0_story_2.html",
@@ -226,6 +251,11 @@ class TestTreeRssAtom(TreeTestBase):
                                         title="Test Atom 1.0 story #2",
                                         publish_date=self.TEST_DATE_DATETIME,
                                     ),
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_atom_1_0.xml",
+                                    ],
                                 ),
                             ],
                         ),

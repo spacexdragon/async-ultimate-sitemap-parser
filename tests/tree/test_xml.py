@@ -203,6 +203,11 @@ class TestTreeXML(TreeTestBase):
                             pages=[
                                 SitemapPage(
                                     url=f"{self.TEST_BASE_URL}/news/public.html",
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_public.xml",
+                                    ],
                                 ),
                             ],
                         ),
@@ -213,6 +218,8 @@ class TestTreeXML(TreeTestBase):
                     pages=[
                         SitemapPage(
                             url=f"{self.TEST_BASE_URL}/news/private.html",
+                            alternates=None,
+                            sitemap_chain=[f"{self.TEST_BASE_URL}/sitemap_index.xml"],
                         ),
                     ],
                 ),

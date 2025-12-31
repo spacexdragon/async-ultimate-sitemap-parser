@@ -31,6 +31,7 @@ class TestTreeOpts(TreeTestBase):
             quiet_404=True,
             recurse_callback=None,
             recurse_list_callback=None,
+            sitemap_chain=[],
         )
 
     async def test_filter_callback(self, requests_mock):

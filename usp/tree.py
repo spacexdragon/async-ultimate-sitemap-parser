@@ -89,6 +89,7 @@ async def sitemap_tree_for_homepage(
             parent_urls=set(),
             recurse_callback=recurse_callback,
             recurse_list_callback=recurse_list_callback,
+            sitemap_chain=[],
         )
         robots_txt_sitemap = await robots_txt_fetcher.sitemap()
         if not isinstance(robots_txt_sitemap, InvalidSitemap):
@@ -112,6 +113,7 @@ async def sitemap_tree_for_homepage(
                     quiet_404=True,
                     recurse_callback=recurse_callback,
                     recurse_list_callback=recurse_list_callback,
+                    sitemap_chain=[],
                 )
                 unpublished_sitemap = await unpublished_sitemap_fetcher.sitemap()
 

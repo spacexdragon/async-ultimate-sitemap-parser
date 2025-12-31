@@ -331,6 +331,7 @@ class SitemapPage:
         "__news_story",
         "__images",
         "__alternates",
+        "__sitemap_chain",
     ]
 
     def __init__(
@@ -342,6 +343,7 @@ class SitemapPage:
         news_story: SitemapNewsStory | None = None,
         images: list[SitemapImage] | None = None,
         alternates: list[tuple[str, str]] | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         """
         Initialize a new sitemap-derived page.
@@ -359,6 +361,7 @@ class SitemapPage:
         self.__news_story = news_story
         self.__images = images
         self.__alternates = alternates
+        self.__sitemap_chain = sitemap_chain
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, SitemapPage):
@@ -385,6 +388,9 @@ class SitemapPage:
         if self.alternates != other.alternates:
             return False
 
+        if self.sitemap_chain != other.sitemap_chain:
+            return False
+
         return True
 
     def __hash__(self):
@@ -403,7 +409,9 @@ class SitemapPage:
             f"last_modified={self.last_modified}, "
             f"change_frequency={self.change_frequency}, "
             f"news_story={self.news_story}, "
-            f"images={self.images}"
+            f"images={self.images}, "
+            f"alternates={self.alternates}, "
+            f"sitemap_chain={self.sitemap_chain}"
             ")"
         )
 
@@ -423,6 +431,8 @@ class SitemapPage:
             "images": [image.to_dict() for image in self.images]
             if self.images
             else None,
+            "alternates": self.alternates if self.alternates else None,
+            "sitemap_chain": self.sitemap_chain if self.sitemap_chain else None,
         }
 
     @property
@@ -474,3 +484,16 @@ class SitemapPage:
             [('fr', 'https://www.example.com/fr/page'), ('de', 'https://www.example.com/de/page')]
         """
         return self.__alternates
+
+    @property
+    def sitemap_chain(self) -> list[str] | None:
+        """Get the chain of sitemap URLs from root to the sitemap containing this page.
+
+        An ordered list of sitemap URLs representing the path from the root sitemap
+        down to the sitemap that contains this page.
+
+        Example::
+
+            ['https://example.com/sitemap.xml', 'https://example.com/sitemap-products.xml', 'https://example.com/sitemap-products-1.xml']
+        """
+        return self.__sitemap_chain

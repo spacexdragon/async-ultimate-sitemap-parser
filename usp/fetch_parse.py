@@ -80,6 +80,7 @@ class SitemapFetcher:
         "_quiet_404",
         "_recurse_callback",
         "_recurse_list_callback",
+        "_sitemap_chain",
     ]
 
     def __init__(
@@ -91,6 +92,7 @@ class SitemapFetcher:
         quiet_404: bool = False,
         recurse_callback: RecurseCallbackType | None = None,
         recurse_list_callback: RecurseListCallbackType | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         """
 
@@ -134,6 +136,7 @@ class SitemapFetcher:
         self._recursion_level = recursion_level
         self._parent_urls = parent_urls or set()
         self._quiet_404 = quiet_404
+        self._sitemap_chain = sitemap_chain or []
 
         self._recurse_callback = recurse_callback
         self._recurse_list_callback = recurse_list_callback
@@ -185,6 +188,7 @@ class SitemapFetcher:
                 parent_urls=self._parent_urls,
                 recurse_callback=self._recurse_callback,
                 recurse_list_callback=self._recurse_list_callback,
+                sitemap_chain=self._sitemap_chain + [self._url],
             )
 
         else:
@@ -198,6 +202,7 @@ class SitemapFetcher:
                     parent_urls=self._parent_urls,
                     recurse_callback=self._recurse_callback,
                     recurse_list_callback=self._recurse_list_callback,
+                    sitemap_chain=self._sitemap_chain + [self._url],
                 )
             else:
                 parser = PlainTextSitemapParser(
@@ -206,6 +211,7 @@ class SitemapFetcher:
                     recursion_level=self._recursion_level,
                     web_client=self._web_client,
                     parent_urls=self._parent_urls,
+                    sitemap_chain=self._sitemap_chain + [self._url],
                 )
 
         log.info(f"Parsing sitemap from URL {self._url}...")
@@ -250,6 +256,7 @@ class AbstractSitemapParser(metaclass=abc.ABCMeta):
         "_parent_urls",
         "_recurse_callback",
         "_recurse_list_callback",
+        "_sitemap_chain",
     ]
 
     def __init__(
@@ -261,12 +268,14 @@ class AbstractSitemapParser(metaclass=abc.ABCMeta):
         parent_urls: set[str],
         recurse_callback: RecurseCallbackType | None = None,
         recurse_list_callback: RecurseListCallbackType | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         self._url = url
         self._content = content
         self._recursion_level = recursion_level
         self._web_client = web_client
         self._parent_urls = parent_urls
+        self._sitemap_chain = sitemap_chain or []
 
         if recurse_callback is None:  # Always allow child recursion
             self._recurse_callback = lambda url, level, parent_urls: True
@@ -300,6 +309,7 @@ class IndexRobotsTxtSitemapParser(AbstractSitemapParser):
         parent_urls: set[str],
         recurse_callback: RecurseCallbackType | None = None,
         recurse_list_callback: RecurseListCallbackType | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         super().__init__(
             url=url,
@@ -309,6 +319,7 @@ class IndexRobotsTxtSitemapParser(AbstractSitemapParser):
             parent_urls=parent_urls,
             recurse_callback=recurse_callback,
             recurse_list_callback=recurse_list_callback,
+            sitemap_chain=sitemap_chain,
         )
 
         if not self._url.endswith("/robots.txt"):
@@ -353,6 +364,7 @@ class IndexRobotsTxtSitemapParser(AbstractSitemapParser):
                         parent_urls=parent_urls,
                         recurse_callback=self._recurse_callback,
                         recurse_list_callback=self._recurse_list_callback,
+                        sitemap_chain=self._sitemap_chain,
                     )
                     fetched_sitemap = await fetcher.sitemap()
                 else:
@@ -390,7 +402,7 @@ class PlainTextSitemapParser(AbstractSitemapParser):
 
         pages = []
         for page_url in story_urls.keys():
-            page = SitemapPage(url=page_url)
+            page = SitemapPage(url=page_url, sitemap_chain=self._sitemap_chain)
             pages.append(page)
 
         text_sitemap = PagesTextSitemap(url=self._url, pages=pages)
@@ -421,6 +433,7 @@ class XMLSitemapParser(AbstractSitemapParser):
         parent_urls: set[str],
         recurse_callback: RecurseCallbackType | None = None,
         recurse_list_callback: RecurseListCallbackType | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         super().__init__(
             url=url,
@@ -430,6 +443,7 @@ class XMLSitemapParser(AbstractSitemapParser):
             parent_urls=parent_urls,
             recurse_callback=recurse_callback,
             recurse_list_callback=recurse_list_callback,
+            sitemap_chain=sitemap_chain,
         )
 
         # Will be initialized when the type of sitemap is known
@@ -530,6 +544,7 @@ class XMLSitemapParser(AbstractSitemapParser):
             if name == "sitemap:urlset":
                 self._concrete_parser = PagesXMLSitemapParser(
                     url=self._url,
+                    sitemap_chain=self._sitemap_chain,
                 )
 
             elif name == "sitemap:sitemapindex":
@@ -540,16 +555,19 @@ class XMLSitemapParser(AbstractSitemapParser):
                     parent_urls=self._parent_urls,
                     recurse_callback=self._recurse_callback,
                     recurse_list_callback=self._recurse_list_callback,
+                    sitemap_chain=self._sitemap_chain,
                 )
 
             elif name == "rss":
                 self._concrete_parser = PagesRSSSitemapParser(
                     url=self._url,
+                    sitemap_chain=self._sitemap_chain,
                 )
 
             elif name == "feed":
                 self._concrete_parser = PagesAtomSitemapParser(
                     url=self._url,
+                    sitemap_chain=self._sitemap_chain,
                 )
 
             else:
@@ -587,6 +605,8 @@ class AbstractXMLSitemapParser(metaclass=abc.ABCMeta):
         "_last_handler_call_was_xml_char_data",
         "_recurse_callback",
         "_recurse_list_callback",
+        # Chain of sitemap URLs from root to current
+        "_sitemap_chain",
     ]
 
     def __init__(
@@ -594,10 +614,12 @@ class AbstractXMLSitemapParser(metaclass=abc.ABCMeta):
         url: str,
         recurse_callback: RecurseCallbackType | None = None,
         recurse_list_callback: RecurseListCallbackType | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         self._url = url
         self._last_char_data = ""
         self._last_handler_call_was_xml_char_data = False
+        self._sitemap_chain = sitemap_chain or []
 
         if recurse_callback is None:  # Always allow child recursion
             self._recurse_callback = lambda url, level, parent_urls: True
@@ -681,11 +703,13 @@ class IndexXMLSitemapParser(AbstractXMLSitemapParser):
         parent_urls: set[str],
         recurse_callback: RecurseCallbackType | None = None,
         recurse_list_callback: RecurseListCallbackType | None = None,
+        sitemap_chain: list[str] | None = None,
     ):
         super().__init__(
             url=url,
             recurse_callback=recurse_callback,
             recurse_list_callback=recurse_list_callback,
+            sitemap_chain=sitemap_chain,
         )
 
         self._web_client = web_client
@@ -727,6 +751,7 @@ class IndexXMLSitemapParser(AbstractXMLSitemapParser):
                         parent_urls=parent_urls,
                         recurse_callback=self._recurse_callback,
                         recurse_list_callback=self._recurse_list_callback,
+                        sitemap_chain=self._sitemap_chain,
                     )
                     fetched_sitemap = await fetcher.sitemap()
                 else:
@@ -821,7 +846,7 @@ class PagesXMLSitemapParser(AbstractXMLSitemapParser):
                 )
             )
 
-        def page(self) -> SitemapPage | None:
+        def page(self, sitemap_chain: list[str] | None = None) -> SitemapPage | None:
             """Return constructed sitemap page if one has been completed, otherwise None."""
 
             # Required
@@ -928,12 +953,13 @@ class PagesXMLSitemapParser(AbstractXMLSitemapParser):
                 news_story=sitemap_news_story,
                 images=sitemap_images,
                 alternates=alternates,
+                sitemap_chain=sitemap_chain,
             )
 
     __slots__ = ["_current_page", "_pages", "_page_urls", "_current_image"]
 
-    def __init__(self, url: str):
-        super().__init__(url=url)
+    def __init__(self, url: str, sitemap_chain: list[str] | None = None):
+        super().__init__(url=url, sitemap_chain=sitemap_chain)
 
         self._current_page = None
         self._pages = []
@@ -1063,7 +1089,7 @@ class PagesXMLSitemapParser(AbstractXMLSitemapParser):
         pages = []
 
         for page_row in self._pages:
-            page = page_row.page()
+            page = page_row.page(sitemap_chain=self._sitemap_chain)
             if page:
                 pages.append(page)
 
@@ -1105,7 +1131,7 @@ class PagesRSSSitemapParser(AbstractXMLSitemapParser):
                 )
             )
 
-        def page(self) -> SitemapPage | None:
+        def page(self, sitemap_chain: list[str] | None = None) -> SitemapPage | None:
             """Return constructed sitemap page if one has been completed, otherwise None."""
 
             # Required
@@ -1130,12 +1156,13 @@ class PagesRSSSitemapParser(AbstractXMLSitemapParser):
                     title=title or description,
                     publish_date=publication_date,
                 ),
+                sitemap_chain=sitemap_chain,
             )
 
     __slots__ = ["_current_page", "_pages", "_page_links"]
 
-    def __init__(self, url: str):
-        super().__init__(url=url)
+    def __init__(self, url: str, sitemap_chain: list[str] | None = None):
+        super().__init__(url=url, sitemap_chain=sitemap_chain)
 
         self._current_page = None
         self._pages = []
@@ -1192,7 +1219,7 @@ class PagesRSSSitemapParser(AbstractXMLSitemapParser):
         pages = []
 
         for page_row in self._pages:
-            page = page_row.page()
+            page = page_row.page(sitemap_chain=self._sitemap_chain)
             if page:
                 pages.append(page)
 
@@ -1238,7 +1265,7 @@ class PagesAtomSitemapParser(AbstractXMLSitemapParser):
                 )
             )
 
-        def page(self) -> SitemapPage | None:
+        def page(self, sitemap_chain: list[str] | None = None) -> SitemapPage | None:
             """Return constructed sitemap page if one has been completed, otherwise None."""
 
             # Required
@@ -1263,6 +1290,7 @@ class PagesAtomSitemapParser(AbstractXMLSitemapParser):
                     title=title or description,
                     publish_date=publication_date,
                 ),
+                sitemap_chain=sitemap_chain,
             )
 
     __slots__ = [
@@ -1272,8 +1300,8 @@ class PagesAtomSitemapParser(AbstractXMLSitemapParser):
         "_last_link_rel_self_href",
     ]
 
-    def __init__(self, url: str):
-        super().__init__(url=url)
+    def __init__(self, url: str, sitemap_chain: list[str] | None = None):
+        super().__init__(url=url, sitemap_chain=sitemap_chain)
 
         self._current_page = None
         self._pages = []
@@ -1344,7 +1372,7 @@ class PagesAtomSitemapParser(AbstractXMLSitemapParser):
         pages = []
 
         for page_row in self._pages:
-            page = page_row.page()
+            page = page_row.page(sitemap_chain=self._sitemap_chain)
             if page:
                 pages.append(page)
 

@@ -60,6 +60,11 @@ class TestTreeSave(TreeTestBase):
                 "change_frequency": "monthly",
                 "images": None,
                 "news_story": None,
+                "alternates": None,
+                "sitemap_chain": [
+                    f"{self.TEST_BASE_URL}/robots.txt",
+                    f"{self.TEST_BASE_URL}/sitemap_pages.xml",
+                ],
             },
             {
                 "url": f"{self.TEST_BASE_URL}/contact.html",
@@ -70,6 +75,11 @@ class TestTreeSave(TreeTestBase):
                 "change_frequency": "always",
                 "images": None,
                 "news_story": None,
+                "alternates": None,
+                "sitemap_chain": [
+                    f"{self.TEST_BASE_URL}/robots.txt",
+                    f"{self.TEST_BASE_URL}/sitemap_pages.xml",
+                ],
             },
             {
                 "url": f"{self.TEST_BASE_URL}/news/foo.html",
@@ -89,6 +99,12 @@ class TestTreeSave(TreeTestBase):
                     "keywords": [],
                     "stock_tickers": [],
                 },
+                "alternates": None,
+                "sitemap_chain": [
+                    f"{self.TEST_BASE_URL}/robots.txt",
+                    f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                    f"{self.TEST_BASE_URL}/sitemap_news_1.xml",
+                ],
             },
             {
                 "url": f"{self.TEST_BASE_URL}/news/bar.html",
@@ -108,6 +124,12 @@ class TestTreeSave(TreeTestBase):
                     "keywords": [],
                     "stock_tickers": [],
                 },
+                "alternates": None,
+                "sitemap_chain": [
+                    f"{self.TEST_BASE_URL}/robots.txt",
+                    f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                    f"{self.TEST_BASE_URL}/sitemap_news_1.xml",
+                ],
             },
             {
                 "url": f"{self.TEST_BASE_URL}/news/bar.html",
@@ -127,6 +149,13 @@ class TestTreeSave(TreeTestBase):
                     "keywords": [],
                     "stock_tickers": [],
                 },
+                "alternates": None,
+                "sitemap_chain": [
+                    f"{self.TEST_BASE_URL}/robots.txt",
+                    f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                    f"{self.TEST_BASE_URL}/sitemap_news_index_2.xml",
+                    f"{self.TEST_BASE_URL}/sitemap_news_2.xml",
+                ],
             },
             {
                 "url": f"{self.TEST_BASE_URL}/news/baz.html",
@@ -146,5 +175,12 @@ class TestTreeSave(TreeTestBase):
                     "keywords": [],
                     "stock_tickers": [],
                 },
+                "alternates": None,
+                "sitemap_chain": [
+                    f"{self.TEST_BASE_URL}/robots.txt",
+                    f"{self.TEST_BASE_URL}/sitemap_news_index_1.xml",
+                    f"{self.TEST_BASE_URL}/sitemap_news_index_2.xml",
+                    f"{self.TEST_BASE_URL}/sitemap_news_2.xml",
+                ],
             },
         ]

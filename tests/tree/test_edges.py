@@ -305,6 +305,12 @@ class TestTreeEdgeCases(TreeTestBase):
                                             last_modified=self.TEST_DATE_DATETIME,
                                             change_frequency=SitemapPageChangeFrequency.MONTHLY,
                                             priority=Decimal("0.8"),
+                                            alternates=None,
+                                            sitemap_chain=[
+                                                f"{self.TEST_BASE_URL}/robots.txt",
+                                                f"{self.TEST_BASE_URL}/sitemap_index.xml",
+                                                f"{self.TEST_BASE_URL}/sitemap_pages.xml",
+                                            ],
                                         )
                                     ],
                                 )

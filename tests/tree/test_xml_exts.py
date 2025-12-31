@@ -85,6 +85,11 @@ class TestXMLExts(TreeTestBase):
                                             loc=f"{self.TEST_BASE_URL}/photo.jpg"
                                         ),
                                     ],
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_images.xml",
+                                    ],
                                 ),
                                 SitemapPage(
                                     url=f"{self.TEST_BASE_URL}/sample2.html",
@@ -92,6 +97,11 @@ class TestXMLExts(TreeTestBase):
                                         SitemapImage(
                                             loc=f"{self.TEST_BASE_URL}/picture.jpg"
                                         ),
+                                    ],
+                                    alternates=None,
+                                    sitemap_chain=[
+                                        f"{self.TEST_BASE_URL}/robots.txt",
+                                        f"{self.TEST_BASE_URL}/sitemap_images.xml",
                                     ],
                                 ),
                             ],
